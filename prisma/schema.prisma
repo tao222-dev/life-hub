@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 作息：每天一条睡眠记录（date 为 YYYY-MM-DD）
+model Routine {
+  id      Int      @id @default(autoincrement())
+  date    String   @unique
+  wakeAt  DateTime?
+  sleepAt DateTime?
+  quality Int      @default(3)
+  note    String?
+}
+
+// 饮食：每餐一条
+model Meal {
+  id       Int     @id @default(autoincrement())
+  date     String
+  type     String // breakfast | lunch | dinner | snack
+  content  String
+  calories Int?
+  note     String?
+  imageUrl String?
+}
+
+// 学习：目标 → 任务
+model StudyGoal {
+  id       Int         @id @default(autoincrement())
+  title    String
+  category String?
+  createdAt DateTime  @default(now())
+  tasks    StudyTask[]
+}
+
+model StudyTask {
+  id         Int       @id @default(autoincrement())
+  goalId     Int
+  title      String
+  done       Boolean   @default(false)
+  pomodoros  Int       @default(0)
+  goal       StudyGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+}
+
+model Pomodoro {
+  id        Int      @id @default(autoincrement())
+  taskId    Int?
+  startedAt DateTime @default(now())
+  duration  Int // 分钟
+}
+
+// 日记：每天一篇
+model Journal {
+  id      Int     @id @default(autoincrement())
+  date    String  @unique
+  content String // 富文本 HTML
+  mood    String?
+}

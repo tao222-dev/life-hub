@@ -1,0 +1,10 @@
+import { PrismaClient } from "@prisma/client";
+const p = new PrismaClient();
+await p.journal.deleteMany();
+await p.meal.deleteMany();
+await p.routine.deleteMany();
+await p.pomodoro.deleteMany();
+await p.studyTask.deleteMany();
+await p.studyGoal.deleteMany();
+console.log("已清空所有演示数据");
+await p.$disconnect();

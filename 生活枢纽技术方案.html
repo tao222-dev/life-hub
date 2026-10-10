@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>生活枢纽 · 技术方案 v0.1</title>
+<style>
+  :root{
+    --bg:#FAFAF8; --bg-card:#FFFFFF; --fg:#1A1A1A; --fg-muted:#6B6B6B; --fg-dim:#9E9E9E;
+    --border:#E8E6E2; --accent:#3D7A6B; --accent-bg:#EDF5F2;
+    --serif:'Noto Serif SC','Songti SC',serif; --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.7;font-size:15px}
+  .wrap{max-width:920px;margin:0 auto;padding:56px 24px 80px}
+  h1{font-family:var(--serif);font-size:36px;font-weight:700;margin:0 0 6px;line-height:1.25}
+  .sub{color:var(--fg-dim);font-size:14px;letter-spacing:.04em;margin-bottom:40px}
+  h2{font-family:var(--serif);font-size:23px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+  h3{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--fg)}
+  p{margin:0 0 12px;color:var(--fg-muted)}
+  ul,ol{margin:0 0 12px;padding-left:22px;color:var(--fg-muted)}
+  li{margin:4px 0}
+  code{background:var(--accent-bg);color:var(--accent);padding:2px 7px;border-radius:6px;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin:14px 0}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--fg-dim);font-weight:600;font-size:13px;letter-spacing:.03em}
+  td{color:var(--fg-muted)}
+  .tag{display:inline-block;font-size:12px;font-weight:500;padding:3px 10px;border-radius:6px;background:var(--accent-bg);color:var(--accent);margin:2px 4px 2px 0}
+  .pill{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:#1A1A1A;color:#fff;margin-right:6px}
+  /* architecture */
+  .arch{display:flex;flex-wrap:wrap;gap:14px;align-items:stretch;margin:18px 0}
+  .box{flex:1;min-width:150px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+  .box b{display:block;font-family:var(--serif);font-size:15px;margin-bottom:4px}
+  .box span{font-size:12px;color:var(--fg-dim)}
+  .arrow{display:flex;align-items:center;color:var(--fg-dim);font-size:20px}
+  .phase{display:flex;gap:14px;margin:12px 0;align-items:flex-start}
+  .num{flex:0 0 34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+  .phaseBody{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px}
+  .phaseBody b{font-family:var(--serif);font-size:15px}
+  .note{background:#FDF8EE;border:1px solid #F0E2C8;border-radius:10px;padding:14px 18px;margin:14px 0;color:#7a5c1e;font-size:14px}
+  .schema{background:#131313;color:#E8E6E2;border-radius:10px;padding:18px 20px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.6;overflow:auto}
+  .schema .k{color:#5EAD96}.schema .c{color:#666}.schema .t{color:#D9896A}
+  .footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border);font-size:13px;color:var(--fg-dim);display:flex;justify-content:space-between}
+  @media(max-width:640px){.arch{flex-direction:column}.arrow{transform:rotate(90deg);justify-content:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>生活枢纽 · 技术方案</h1>
+  <div class="sub">个人生活管理 Web 应用　|　v0.1　|　自托管 · 数据归你</div>
+
+  <div class="card">
+    <p style="margin:0;color:var(--fg)"><b>项目定位：</b>一个完全运行在你自己服务器上的个人生活管理站。包含 <b>作息 / 饮食 / 学习 / 日记</b> 四大模块，并内置一个 <b>AI 助手</b>，能基于你的记录生成周报、营养分析、学习报告与情绪洞察。核心原则是<b>数据自托管</b>——没有任何记录落到第三方云。</p>
+  </div>
+
+  <h2>一、技术选型</h2>
+  <p>考虑点：个人使用（单用户、低并发）、要自托管、要易维护易备份、AI 要能接。我的建议是<b>用 Next.js 做全栈</b>，前后端同一套代码、一次部署，最省心。</p>
+  <table>
+    <tr><th>层</th><th>选型</th><th>理由</th></tr>
+    <tr><td>前端框架</td><td><code>Next.js 14 (App Router) + React + TypeScript</code></td><td>你给的 HTML 设计语言（CSS 变量、卡片网格、衬线标题）可直接复用；SSR 对自托管友好</td></tr>
+    <tr><td>样式</td><td><code>Tailwind CSS</code></td><td>把现有设计 token（--accent-routine 等）转成 theme，一致性拉满</td></tr>
+    <tr><td>图表</td><td><code>Recharts</code></td><td>趋势图 / 时间线 / 环形图，React 生态最稳</td></tr>
+    <tr><td>富文本</td><td><code>Tiptap</code></td><td>日记模块的富文本 + 心情标记</td></tr>
+    <tr><td>后端</td><td><code>Next.js Route Handlers (app/api/**)</code></td><td>不另起服务，和前端同仓同部署</td></tr>
+    <tr><td>数据库</td><td><code>SQLite + Prisma</code></td><td>单文件、零运维、备份 = 复制一个文件；Prisma 让表结构清晰</td></tr>
+    <tr><td>鉴权</td><td><code>单密码会话 (cookie)</code></td><td>个人站不需要多用户，一个密码进门即可</td></tr>
+    <tr><td>AI</td><td><code>LLM API（可切换）</code></td><td>OpenAI 兼容 / DeepSeek / 本地 Ollama，见第七节</td></tr>
+    <tr><td>部署</td><td><code>Docker Compose</code></td><td>一条命令跑起前后端 + 数据库，自有 VPS 即可</td></tr>
+  </table>
+  <div class="note">备选：若你日后想上 Postgres（多端同步、并发写入更稳），Prisma 换一个 datasource 即可，业务代码几乎不动。</div>
+
+  <h2>二、系统架构</h2>
+  <div class="arch">
+    <div class="box"><b>浏览器</b><span>概览页 + 四模块页<br>图表 / 富文本 / 番茄钟</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><b>Next.js 应用</b><span>页面 (React)<br>API 路由 (Route Handlers)</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><b>SQLite</b><span>作息 / 饮食<br>学习 / 日记 数据</span></div>
+  </div>
+  <div class="arch">
+    <div class="box" style="flex:2"><b>AI 助手</b><span>读取你的记录 → 调用 LLM → 返回总结 / 分析 / 建议<br>（可配置为本地模型，数据不出本机）</span></div>
+  </div>
+  <p>所有读写都走你自己的 Next.js + SQLite，<b>没有任何数据默认上传到第三方</b>。AI 那一路是可选的、可开关的，且能指向本地模型做到完全离线。</p>
+
+  <h2>三、数据模型（Prisma 草案）</h2>
+  <div class="schema">
+<span class="c">// 作息：每天一条睡眠记录</span>
+<span class="k">model</span> Routine {
+  id        <span class="t">Int</span>    @id @default(autoincrement())
+  date      <span class="t">DateTime</span>  <span class="c">@db.Date</span>   <span class="c">// 哪一天</span>
+  wakeAt    <span class="t">DateTime</span>?            <span class="c">// 起床时间</span>
+  sleepAt   <span class="t">DateTime</span>?            <span class="c">// 入睡时间</span>
+  quality   <span class="t">Int</span>?    @default(3)     <span class="c">// 睡眠质量 1-5</span>
+  note      <span class="t">String</span>?
+}
+
+<span class="c">// 饮食：每餐一条</span>
+<span class="k">model</span> Meal {
+  id        <span class="t">Int</span>    @id @default(autoincrement())
+  date      <span class="t">DateTime</span>  <span class="c">@db.Date</span>
+  type      <span class="t">String</span>                <span class="c">// breakfast/lunch/dinner/snack</span>
+  content   <span class="t">String</span>              <span class="c">// 吃了什么</span>
+  calories  <span class="t">Int</span>?                 <span class="c">// 热量(可选)</span>
+  note      <span class="t">String</span>?
+  imageUrl  <span class="t">String</span>?              <span class="c">// 食物图(可选)</span>
+}
+
+<span class="c">// 学习：目标 → 任务 → 番茄钟</span>
+<span class="k">model</span> StudyGoal {
+  id        <span class="t">Int</span>    @id @default(autoincrement())
+  title     <span class="t">String</span>
+  category  <span class="t">String</span>?             <span class="c">// 科目/项目</span>
+  tasks     StudyTask[]
+}
+<span class="k">model</span> StudyTask {
+  id        <span class="t">Int</span>    @id @default(autoincrement())
+  goalId    <span class="t">Int</span>
+  title     <span class="t">String</span>
+  done      <span class="t">Boolean</span> @default(false)
+  pomodoros <span class="t">Int</span>     @default(0)     <span class="c">// 完成的番茄数</span>
+}
+<span class="k">model</span> Pomodoro {
+  id        <span class="t">Int</span>    @id @default(autoincrement())
+  taskId    <span class="t">Int</span>?
+  startedAt <span class="t">DateTime</span>
+  duration  <span class="t">Int</span>                  <span class="c">// 分钟</span>
+}
+
+<span class="c">// 日记：每天一篇</span>
+<span class="k">model</span> Journal {
+  id        <span class="t">Int</span>    @id @default(autoincrement())
+  date      <span class="t">DateTime</span>  <span class="c">@db.Date</span>
+  content   <span class="t">String</span>              <span class="c">// 富文本 HTML/JSON</span>
+  mood      <span class="t">String</span>?              <span class="c">// 心情标记</span>
+}
+  </div>
+
+  <h2>四、模块拆解</h2>
+
+  <h3>① 概览页（你已有的 HTML）</h3>
+  <p>作为首页 / Dashboard。直接把你的设计稿搬进来，卡片点击进入对应模块。底部保留"数据仅存你自己的服务器"提示。</p>
+
+  <h3>② 作息管理</h3>
+  <ul>
+    <li>表单：日期、起床/入睡时间、睡眠质量滑块、备注</li>
+    <li>视图：每日时间线 + 近 30 天睡眠时长/质量趋势图（Recharts）</li>
+    <li>API：<code>GET/POST /api/routine</code>、<code>GET /api/routine/trends</code></li>
+  </ul>
+
+  <h3>③ 饮食记录</h3>
+  <ul>
+    <li>表单：日期、餐别、内容、热量、备注、拍照（可选图片上传到本地）</li>
+    <li>视图：当日三餐列表 + 周度饮食结构回顾</li>
+    <li>API：<code>GET/POST /api/meals</code>、<code>POST /api/meals/upload</code></li>
+  </ul>
+
+  <h3>④ 学习计划</h3>
+  <ul>
+    <li>目标/任务 CRUD，番茄钟计时器（前端计时 + 落库 Pomodoro）</li>
+    <li>视图：目标进度条、按科目分类、累计专注时长</li>
+    <li>API：<code>/api/study/goals</code>、<code>/api/study/tasks</code>、<code>/api/pomodoro</code></li>
+  </ul>
+
+  <h3>⑤ 每日日记</h3>
+  <ul>
+    <li>Tiptap 富文本编辑，心情标记（emoji/标签）</li>
+    <li>视图：按日期归档的时间线，可检索</li>
+    <li>API：<code>GET/POST/PUT /api/journal</code></li>
+  </ul>
+
+  <h3>⑥ AI 助手（复用你那颗可拖拽悬浮球）</h3>
+  <ul>
+    <li>面板里 6 个预设：周报总结 / 营养分析 / 学习报告 / 情绪洞察 / 改善建议 / 自由问答</li>
+    <li>后端把对应模块的数据组装成 prompt，调用 LLM，流式返回</li>
+    <li>API：<code>POST /api/ai/chat</code>（服务端持 key，数据不出服务端）</li>
+  </ul>
+
+  <h2>五、实施路线</h2>
+  <div class="phase"><div class="num">0</div><div class="phaseBody"><b>脚手架</b>　初始化 Next.js + TS + Tailwind，把你的设计 token 落成 theme，搭出概览页骨架。</div></div>
+  <div class="phase"><div class="num">1</div><div class="phaseBody"><b>数据层 + 鉴权</b>　Prisma + SQLite，单密码登录，保护所有 API。</div></div>
+  <div class="phase"><div class="num">2</div><div class="phaseBody"><b>四模块 CRUD + UI</b>　作息 / 饮食 / 学习 / 日记的增删改查与表单。</div></div>
+  <div class="phase"><div class="num">3</div><div class="phaseBody"><b>图表与趋势</b>　Recharts 时间线、趋势、进度可视化。</div></div>
+  <div class="phase"><div class="num">4</div><div class="phaseBody"><b>AI 助手</b>　悬浮球交互 + 服务端 LLM 调用 + 6 个预设能力。</div></div>
+  <div class="phase"><div class="num">5</div><div class="phaseBody"><b>部署与备份</b>　Docker Compose、一键启动、SQLite 定时备份脚本。</div></div>
+
+  <h2>六、部署（自托管）</h2>
+  <ul>
+    <li><b>Docker Compose</b>：一个 <code>next</code> 服务 + 挂载的数据卷（SQLite 文件 + 上传图片）。</li>
+    <li><b>运行环境</b>：任意 VPS、群晖、甚至家里一台常开机器；端口反代 + HTTPS（如 Caddy）。</li>
+    <li><b>备份</b>：SQLite 是单文件，定时 <code>cp</code> 即可；可加 cron 每日打包。</li>
+    <li><b>环境变量</b>：<code>SITE_PASSWORD</code>（进门密码）、<code>LLM_API_KEY</code> / <code>LLM_BASE_URL</code> / <code>LLM_MODEL</code>（AI 用）。</li>
+  </ul>
+
+  <h2>七、待你确认（决定后就开干）</h2>
+  <div class="card">
+    <p style="margin:0 0 8px;color:var(--fg)"><b>① AI 用哪家？</b></p>
+    <ul style="margin:0">
+      <li><span class="tag">云端 API</span> 如 DeepSeek / 通义 / OpenAI 兼容（效果最好，但记录会发给模型）</li>
+      <li><span class="tag">本地模型</span> 如 Ollama + Qwen（完全离线、最隐私，但需要机器有算力）</li>
+    </ul>
+    <p style="margin:14px 0 8px;color:var(--fg)"><b>② 要不要进门密码？</b></p>
+    <ul style="margin:0"><li>个人站建议加一个简单密码，防被扫到。</li></ul>
+    <p style="margin:14px 0 8px;color:var(--fg)"><b>③ 部署到哪？</b></p>
+    <ul style="margin:0"><li>已有 VPS / 群晖？还是先在本地 <code>npm run dev</code> 跑起来看效果？</li></ul>
+    <p style="margin:14px 0 8px;color:var(--fg)"><b>④ 饮食要拍照吗？</b></p>
+    <ul style="margin:0"><li>要的话需要图片上传 + 本地存储，会多一小块工作。</li></ul>
+  </div>
+
+  <div class="footer">
+    <span><span class="pill">下一步</span>你回复选型 → 我直接进 Phase 0 搭骨架</span>
+    <span>生活枢纽 · 技术方案 v0.1</span>
+  </div>
+
+</div>
+</body>
+</html>
