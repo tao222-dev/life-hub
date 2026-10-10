@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { compressImage } from "@/lib/imageCompress";
 
 type Meal = {
   id: number;
@@ -45,9 +46,17 @@ export default function DietPage() {
     let imageUrl: string | null = null;
     if (file) {
       setUploading(true);
+      // 先在前端压缩，避免超出 Vercel 4.5MB 请求体上限，也节省数据库存储
+      const toUpload = await compressImage(file);
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", toUpload);
       const up = await fetch("/api/diet/upload", { method: "POST", body: fd });
+      if (!up.ok) {
+        setUploading(false);
+        setSaving(false);
+        alert(`图片上传失败（HTTP ${up.status}）。请换一张更小的图片，或稍后重试。`);
+        return;
+      }
       const u = await up.json();
       imageUrl = u.url || null;
       setUploading(false);
@@ -102,7 +111,7 @@ export default function DietPage() {
             onChange={(e) => setForm({ ...form, calories: e.target.value })} />
         </div>
         <div>
-          <label className="text-xs text-muted">拍照 (可选)</label>
+          <label className="text-xs text-muted">拍照 (可选，自动压缩)</label>
           <input ref={fileRef} type="file" accept="image/*" className="input mt-1"
             onChange={(e) => setFile(e.target.files?.[0] || null)} />
         </div>
